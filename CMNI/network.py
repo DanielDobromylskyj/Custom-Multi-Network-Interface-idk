@@ -15,6 +15,8 @@ class Server():
 
         self.send = False
         self.recv = False
+        self.send_data = []
+        self.recv_data = []
 
         self.connections = [] # (addr, conn)
         self.Binded = False
@@ -32,11 +34,9 @@ class Server():
     def Shutdown(self):
         self.s.close()
 
-    def GetConnected(self):
-        return self.connections
-
     def Send(self, connection, message, encoding_type = "utf-8"): # Add Encoding / Encryption
         self.send = True
+        self.send_data = connection
         #addr, conn = connection
         #binary = message.encode(encoding_type)
         #conn.sendto(binary, addr)
@@ -49,6 +49,9 @@ class Server():
         #    return message
         #elif ReturnIp == True:
         #    return message
+
+    def Get_Connected(self):
+        return self.connections
 
 
     def Init_Network_Thread(self, Print = True):

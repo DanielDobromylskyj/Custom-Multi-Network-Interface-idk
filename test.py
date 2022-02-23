@@ -9,6 +9,4 @@ server.Run()
 server.Send(123, "test")
 
 while True:
-    data = None
-    if data == "ping":
-        server.Send(addr, "pong")
+    print(server.Get_Connected())
