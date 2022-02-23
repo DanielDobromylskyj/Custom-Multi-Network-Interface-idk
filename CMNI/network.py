@@ -13,6 +13,9 @@ class Server():
         self.PORT = port
         self.HOST = socket.gethostbyname(socket.gethostname())
 
+        self.send = False
+        self.recv = False
+
         self.connections = [] # (addr, conn)
         self.Binded = False
 
@@ -32,26 +35,38 @@ class Server():
     def GetConnected(self):
         return self.connections
 
-    def Send(self, addr, message, encoding_type = "utf-8"): # Add Encoding / Encryption
-        binary = message.encode(encoding_type)
-        self.s.sendto(binary, addr)
+    def Send(self, connection, message, encoding_type = "utf-8"): # Add Encoding / Encryption
+        self.send = True
+        #addr, conn = connection
+        #binary = message.encode(encoding_type)
+        #conn.sendto(binary, addr)
 
-    def Recv(self, ReturnIp = False, encoding_type = "utf-8", buffersize = 1024):
-        binary= self.s.recv(buffersize)
-        message = binary.decode(encoding_type)
-        if ReturnIp == False:
-            return message
-        elif ReturnIp == True:
-            return message
+    def Recv(self, conn, ReturnIp = False, encoding_type = "utf-8", buffersize = 1024):
+        self.recv = True
+        #binary = conn.recv(buffersize)
+        #message = binary.decode(encoding_type)
+        #if ReturnIp == False:
+        #    return message
+        #elif ReturnIp == True:
+        #    return message
 
 
     def Init_Network_Thread(self, Print = True):
+        def server_branch(conn, addr):
+            while True:
+                with conn:
+                    if self.send == True:
+                        print("send")
+                        self.send = False
+
         while True:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.s:
                 self.s.bind((self.HOST, self.PORT))
                 self.s.listen()
                 conn, addr = self.s.accept()
                 self.connections.append((addr, conn))
+                x = threading.Thread(target=server_branch, args=[conn, addr])
+                x.start()
                 if Print == True:
                     print("Connection From: ", addr)
 
@@ -78,10 +93,10 @@ class Client():
 
     def Send(self, message, encoding_type = "utf-8"): # Add Encoding / Encryption
         binary = message.encode(encoding_type)
-        self.s.sendto(binary, (self.Client_HOST, self.Client_PORT))
+        self.s.sendall(binary)
 
-    def Recv(self, ReturnIp = False, encoding_type = "utf-8", buffersize = 1024):
-        binary, addr = self.s.recvfrom(buffersize)
+    def Recv(self, conn, ReturnIp = False, encoding_type = "utf-8", buffersize = 1024):
+        binary, addr = conn.recvfrom(buffersize)
         print(addr)
         message = binary.decode(encoding_type)
         if ReturnIp == False:
@@ -92,12 +107,13 @@ class Client():
 
     def Init_Network_Thread(self, Print = True):
         while True:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.s:
-                if self.connected == False:
-                    self.s.connect((self.Client_HOST, self.Client_PORT))
-                    self.connected = True
-                    print("Conn Made")
-                    time.sleep(0.5)
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            if self.connected == False:
+                self.s.connect((self.Client_HOST, self.Client_PORT))
+                self.connected = True
+                print("Conn Made")
+                time.sleep(0.5)
+
 
                 # Loop
 
