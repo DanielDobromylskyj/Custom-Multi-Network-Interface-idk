@@ -83,7 +83,11 @@ class Server():
 
 
                 try:
-                    exec("from " + file_name + " import " + function)
+                    try:
+                        exec("from " + file_name + " import " + function)
+                    except SyntaxError:
+                        pass
+
 
                     socket_number = self.CONNECTIONLIST.__len__() - 1
                     client = threading.Thread(target=func, args=[self, socket_number])
