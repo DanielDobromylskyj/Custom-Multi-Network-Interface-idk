@@ -4,9 +4,8 @@ from CMNI import network
 def test(server, socket_number):
     print("Test Function Called")
     server.Send(socket_number, "123")
-
     data = server.Recv(socket_number)
-    print(data)
+    print("Recved: ", data)
 
 
 if __name__ == "__main__":

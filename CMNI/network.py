@@ -70,6 +70,7 @@ class Server():
     def Init_Network_Thread(self, function, file_name, func):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((self.HOST, self.PORT))
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         while True:
             try:
@@ -95,9 +96,6 @@ class Server():
 
                 except Exception as e:
                     print("Function Call Error: ", e)
-
-
-                #eval(function + "()")
 
 
             except Exception as e:
@@ -142,6 +140,7 @@ class Client():
 
     def Init_Network_Thread(self, Print = True):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         while True:
             if self.connected == False:
                 self.s.connect((self.Client_HOST, self.Client_PORT))
