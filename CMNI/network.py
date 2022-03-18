@@ -2,7 +2,6 @@ import time
 import socket
 import threading
 import sys
-import requests
 
 
 
@@ -16,6 +15,7 @@ class Server():
         self.PORT = port
         self.HOST = socket.gethostbyname(socket.gethostname())
         try:
+            import requests
             # Try Get Public IP from duckduckgo - If no respones or error assume down / bad connection
             raw = requests.get('https://api.duckduckgo.com/?q=ip&format=json')
 
