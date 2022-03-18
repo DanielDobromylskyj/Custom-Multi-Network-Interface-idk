@@ -2,6 +2,7 @@ import time
 import socket
 import threading
 import sys
+import requests
 
 
 
@@ -9,15 +10,26 @@ class Server():
     def __init__(self):
         pass
 
-
     def Setup(self, port):
-
         self.Close = False
         self.CONNECTIONLIST = []
         self.PORT = port
         self.HOST = socket.gethostbyname(socket.gethostname())
+        try:
+            # Try Get Public IP from duckduckgo - If no respones or error assume down / bad connection
+            raw = requests.get('https://api.duckduckgo.com/?q=ip&format=json')
 
-        print("Setup Complete | Host:", self.HOST, ", On Port", self.PORT)
+            self.publicIP = raw.json()["Answer"].split()[4]
+
+            print("Setup Complete | Local Host:", self.HOST, ", Public Host: ", self.publicIP, ", On Port", self.PORT)
+
+        except Exception as e:
+            self.publicIP = None
+
+            print("Debug: ", e)
+
+            print("No Public Host Found (Using DuckDuckGo) Do you have a internet connection?")
+            print("Setup Complete (LAN Only) | Local Host:", self.HOST, ", On Port", self.PORT)
 
         self.send = False
         self.recv = False
@@ -77,7 +89,7 @@ class Server():
                 if self.Close == True:
                     break
 
-                self.s.listen()
+                self.s.listen(5)
                 conn, addr = self.s.accept()
                 self.connections.append((addr, conn))
                 self.CONNECTIONLIST.append(conn)
@@ -139,10 +151,10 @@ class Client():
 
 
     def Init_Network_Thread(self, Print = True):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         while True:
             if self.connected == False:
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.s.connect((self.Client_HOST, self.Client_PORT))
                 self.connected = True
                 print("Connection Made")

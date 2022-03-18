@@ -10,6 +10,6 @@ def test(server, socket_number):
 
 if __name__ == "__main__":
     server = network.Server()
-    server.Setup(8787)
+    server.Setup(8776)
 
     server.Run(test)

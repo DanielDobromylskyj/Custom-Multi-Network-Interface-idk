@@ -1,7 +1,7 @@
 from CMNI import network
 
 client = network.Client()
-client.Setup("IP", 8787)
+client.Setup("192.168.137.1", 8776)
 
 client.Connect()
 data = client.Recv()
